@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tenancy/screens/general/homepage.dart';
 import 'package:tenancy/screens/intro.dart';
+import 'package:tenancy/spla_screen.dart';
 import 'package:tenancy/utils/provider_class.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -57,31 +58,27 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: Future.delayed(const Duration(seconds: 3)),
-        builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const MaterialApp(
-              home: IntroScreen(),
-            );
-          } else {
-            return MaterialApp(
-              title: 'Flutter Demo',
-              debugShowCheckedModeBanner: false,
-              theme: ThemeData(
-                primarySwatch: Colors.teal,
-                scaffoldBackgroundColor: Colors.white,
-                textTheme: GoogleFonts.latoTextTheme(
-                  Theme.of(context).textTheme,
+    return MaterialApp(
+      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        scaffoldBackgroundColor: Colors.white,
+        textTheme: GoogleFonts.latoTextTheme(
+          Theme.of(context).textTheme,
+        ),
+      ),
+      home: !widget.installed
+          ? const SplashScreenCust(
+              next: IntroScreen(),
+            )
+          : widget.loggedIn
+              ? const SplashScreenCust(
+                  next: HomePage(),
+                )
+              : SplashScreenCust(
+                  next: LoginPage(),
                 ),
-              ),
-              home: !widget.installed
-                  ? IntroScreen()
-                  : widget.loggedIn
-                      ? HomePage()
-                      : LoginPage(),
-            );
-          }
-        });
+    );
   }
 }
