@@ -180,7 +180,7 @@ class _HouseDetailState extends State<HouseDetail> {
                     Container(
                       color: app_color,
                       height: size.height * 0.4,
-                      child: Image.network(widget.url + widget.image, fit: BoxFit.cover,),
+                      child: Image.network(widget.image, fit: BoxFit.cover,),
                     ),
                     Positioned(
                       top: 20,

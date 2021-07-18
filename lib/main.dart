@@ -57,21 +57,31 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        scaffoldBackgroundColor: Colors.white,
-        textTheme: GoogleFonts.latoTextTheme(
-          Theme.of(context).textTheme,
-        ),
-      ),
-      home: !widget.installed
-          ? IntroScreen()
-          : widget.loggedIn
-              ? HomePage()
-              : LoginPage(),
-    );
+    return FutureBuilder(
+        future: Future.delayed(const Duration(seconds: 3)),
+        builder: (context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const MaterialApp(
+              home: IntroScreen(),
+            );
+          } else {
+            return MaterialApp(
+              title: 'Flutter Demo',
+              debugShowCheckedModeBanner: false,
+              theme: ThemeData(
+                primarySwatch: Colors.teal,
+                scaffoldBackgroundColor: Colors.white,
+                textTheme: GoogleFonts.latoTextTheme(
+                  Theme.of(context).textTheme,
+                ),
+              ),
+              home: !widget.installed
+                  ? IntroScreen()
+                  : widget.loggedIn
+                      ? HomePage()
+                      : LoginPage(),
+            );
+          }
+        });
   }
 }

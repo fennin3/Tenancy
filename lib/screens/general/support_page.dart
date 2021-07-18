@@ -8,18 +8,19 @@ import 'package:tenancy/get_functions.dart';
 import 'package:tenancy/screens/general/add_ticket.dart';
 import 'package:provider/provider.dart';
 import 'package:tenancy/screens/general/image_screen.dart';
+import 'package:tenancy/screens/pdf_screen.dart';
 import 'package:tenancy/utils/provider_class.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:toast/toast.dart';
 import 'dart:convert';
 
-
 class SupportPage extends StatefulWidget {
   final String url;
   final List extensions;
 
-  const SupportPage({Key? key, required this.url,required this.extensions}) : super(key: key);
+  const SupportPage({Key? key, required this.url, required this.extensions})
+      : super(key: key);
 
   @override
   _SupportPageState createState() => _SupportPageState();
@@ -129,68 +130,81 @@ class _SupportPageState extends State<SupportPage> {
                       const SizedBox(
                         height: 15,
                       ),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            if (_files.isNotEmpty)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Attached File(s)",
-                                  style: TextStyle(
-                                      fontSize: 18, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    print(data['files'].toString().split(','));
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ImageScreen(
-                                          images:
-                                          data['files'].toString().split(','),
-                                          url: widget.url,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(13),
-                                    color: app_color,
-                                    child: const Text(
-                                      "Oped attached files",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                            if (_images.isNotEmpty)
-                              Column(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (_files.isNotEmpty)
+                            Expanded(
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    "Attached Image(s)",
+                                    "Attached File(s)",
                                     style: TextStyle(
-                                        fontSize: 18, fontWeight: FontWeight.bold),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(
                                     height: 5,
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      print(data['files'].toString().split(','));
+                                      if (_files[0].toString().split('.')[1] ==
+                                          "pdf") {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PdfReadScreen(
+                                                      url: widget.url +
+                                                          _files[0]
+                                                              .toString())),
+                                        );
+                                      } else if (_files[0]
+                                                  .toString()
+                                                  .split('.')[1] ==
+                                              "doc" ||
+                                          _files[0].toString().split('.')[1] ==
+                                              "docx") {
+                                        Toast.show(
+                                            "Sorry, try again later.", context,
+                                            gravity: Toast.BOTTOM,
+                                            duration: Toast.LENGTH_LONG);
+                                      }
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.all(13),
+                                      color: app_color,
+                                      child: const Text(
+                                        "Open files",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          if (_images.isNotEmpty)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Attached Image(s)",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => ImageScreen(
-                                            images:
-                                            data['files'].toString().split(','),
+                                            images: _images,
                                             url: widget.url,
                                           ),
                                         ),
@@ -200,16 +214,16 @@ class _SupportPageState extends State<SupportPage> {
                                       padding: EdgeInsets.all(13),
                                       color: app_color,
                                       child: const Text(
-                                        "Oped attached Images",
+                                        "Open Images",
                                         style: TextStyle(color: Colors.white),
                                       ),
                                     ),
                                   )
                                 ],
                               ),
-                          ],
-                        ),
-
+                            ),
+                        ],
+                      ),
                       const SizedBox(
                         height: 15,
                       ),
@@ -386,7 +400,7 @@ class _SupportPageState extends State<SupportPage> {
                                 ),
                                 title: Text('${_data[index]['subject']}'),
                                 subtitle: Text(
-                                    'Date: ${_data[index]['created']} |  Status: ${_data[index]['status']}'),
+                                    'Date: ${_data[index]['created']}\nStatus: ${_data[index]['status']}'),
                                 trailing: Container(
                                   width: 50,
                                   child: Row(
@@ -440,22 +454,27 @@ class _SupportPageState extends State<SupportPage> {
                                 color: app_color,
                                 icon: Icons.remove_red_eye,
                                 onTap: () {
-                                  try{
-                                    for (var i in _data[index]['files'].toString().split(",")){
-                                      if (widget.extensions.contains(i.split(".")[1]) && i.split(".")[1] != "pdf" && i.split(".")[1] != "doc" && i.split(".")[1] != "docx"){
-
+                                  try {
+                                    for (var i in _data[index]['files']
+                                        .toString()
+                                        .split(",")) {
+                                      if (widget.extensions
+                                              .contains(i.split(".")[1]) &&
+                                          i.split(".")[1] != "pdf" &&
+                                          i.split(".")[1] != "doc" &&
+                                          i.split(".")[1] != "docx") {
                                         setState(() {
                                           _images.add(i);
                                         });
-                                      }
-                                      else if(i.split(".")[1] =="pdf" && i.split(".")[1] =="doc" && i.split(".")[1] =="docx"){
+                                      } else if (i.split(".")[1] == "pdf" &&
+                                          i.split(".")[1] == "doc" &&
+                                          i.split(".")[1] == "docx") {
                                         setState(() {
                                           _files.add(i);
                                         });
                                       }
                                     }
-                                  }
-                                  catch(e){}
+                                  } catch (e) {}
                                   showTicketDetail(_data[index]);
                                 },
                               ),

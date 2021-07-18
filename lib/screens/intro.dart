@@ -188,8 +188,7 @@ class _IntroScreenState extends State<IntroScreen> {
                       );
                     },
                     child: Container(
-                      width: 110,
-                      height: 30,
+
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         color: const Color(0xff1eae98),
